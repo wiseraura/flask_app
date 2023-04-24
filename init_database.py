@@ -14,7 +14,7 @@ cur = conn.cursor()
 cur.execute('DROP TABLE IF EXISTS books;')
 cur.execute('DROP TABLE IF EXISTS accounts;')
 
-cur.execute('CREATE TABLE account (id serial PRIMARY KEY,'
+cur.execute('CREATE TABLE accounts (id serial PRIMARY KEY,'
             'username varchar (15) NOT NULL,'
             'password varchar(20) NOT NULL);'
             )
@@ -28,6 +28,12 @@ cur.execute('CREATE TABLE books (id serial PRIMARY KEY,'
             )
 
 # Insert data into the table
+cur.execute('INSERT INTO accounts (username, password)'
+            'VALUES (%s, %s)',
+            ('phibien',
+             '123456789')
+            )
+
 cur.execute('INSERT INTO books (title, author, pages_num, review)'
             'VALUES (%s, %s, %s, %s)',
             ('A Tale of Two Cities',
