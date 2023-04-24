@@ -1,8 +1,8 @@
 import psycopg2
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__)
-
+app.secret_key = "123456789Aa@"
 def get_db_connection():
     conn = psycopg2.connect(host='localhost',
                             database='flask_database',
@@ -24,6 +24,9 @@ def index():
 
 @app.route('/create/', methods=('GET', 'POST'))
 def create():
+    if 'username' not in session:  # Check if user is logged in
+        return redirect(url_for('login'))
+    
     if request.method == 'POST':
         title = request.form['title']
         author = request.form['author']
@@ -41,3 +44,28 @@ def create():
         return redirect(url_for('index'))
     
     return render_template('create.html')
+
+
+@app.route('/login/', methods=('GET', 'POST'))
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password))
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        # Check if username and password are correct
+        if user:
+            session['username'] = username  # Set the username in the session
+            return redirect(url_for('create'))
+        
+        # If username or password is incorrect, render the login template with an error message
+        error = 'Incorrect username or password'
+        return render_template('login.html', error=error)
+
+    return render_template('login.html')
