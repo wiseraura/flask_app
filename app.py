@@ -69,3 +69,36 @@ def login():
         return render_template('login.html', error=error)
 
     return render_template('login.html')
+
+
+@app.route('/register/', methods=('GET', 'POST'))
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # Check if username already exists in the database
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id FROM accounts WHERE username = %s', (username,))
+        existing_user = cur.fetchone()
+        cur.close()
+
+        if existing_user:
+            # User already exists, display error message
+            error = 'Username already exists'
+            return render_template('register.html', error=error)
+
+        # Add new user to the database
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('INSERT INTO accounts (username, password) VALUES (%s, %s)', (username, password))
+        conn.commit()
+        cur.close()
+
+        # Display success message and redirect to login page
+        success = 'Account created successfully!'
+        return render_template('login.html', success=success)
+
+    # Render registration page
+    return render_template('register.html')
