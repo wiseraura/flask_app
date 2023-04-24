@@ -70,7 +70,7 @@
       <label for="password">Password</label>
       <input type="password" id="password" name="password" required>
       <button type="submit" id="login">Login</button>
-      <button type="submit" id="register">Register</button>
+      <button type="submit" id="register" formaction="{{ url_for('register') }}">Register</button>
     </form>
   </body>
 </html>
